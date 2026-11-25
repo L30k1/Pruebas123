@@ -1,13 +1,29 @@
 import os
-from flask import Flask, jsonify, request
+from pathlib import Path
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Permite peticiones desde el frontend en otro puerto/origen
+CORS(app)
+
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 items = [
     {"id": 1, "name": "Tarea inicial"}
 ]
+
+@app.get("/")
+def index():
+    return send_from_directory(FRONTEND_DIR, "index.html")
+
+@app.get("/<path:filename>")
+def static_files(filename):
+    if filename.startswith("api/"):
+        return jsonify({"error": "Not found"}), 404
+    file_path = FRONTEND_DIR / filename
+    if file_path.is_file():
+        return send_from_directory(FRONTEND_DIR, filename)
+    return send_from_directory(FRONTEND_DIR, "index.html")
 
 @app.get("/api/health")
 def health():
