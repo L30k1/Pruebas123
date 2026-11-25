@@ -1,4 +1,4 @@
-const API_URL = "https://pruebas123-2wx0.onrender.com/api";
+const API_URL = "https://pruebas123-2wx0.onrender.com//api";
 
 const listEl = document.getElementById("item-list");
 const formEl = document.getElementById("item-form");
