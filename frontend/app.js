@@ -1,7 +1,8 @@
 const API_URL = "/api";
 
 window.addEventListener("load", async () => {
-  await window.Clerk.load();
+  const ui = window.__clerk_ui || window.ClerkUI;
+  await window.Clerk.load(ui ? { ui } : undefined);
 
   const authContainer = document.getElementById("auth-container");
   const appContent = document.getElementById("app-content");
