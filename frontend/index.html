@@ -2,19 +2,27 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Demo Backend + Frontend</title>
+  <title>App con Clerk</title>
 </head>
 <body>
-  <h1>Lista de elementos</h1>
+  <header>
+    <div id="auth-container"></div>
+  </header>
 
-  <form id="item-form">
-    <input id="item-input" type="text" placeholder="Nuevo elemento..." required />
-    <button type="submit">Agregar</button>
-  </form>
+  <main id="app-content" style="display: none;">
+    <h1>Lista de elementos</h1>
+    <ul id="items-list"></ul>
+    <input type="text" id="item-input" placeholder="Nueva tarea" />
+    <button id="add-btn">Agregar</button>
+  </main>
 
-  <ul id="item-list"></ul>
-
-  <script src="./app.js"></script>
+  <script
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_TU_PUBLISHABLE_KEY"
+    src="https://TU-INSTANCIA.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+    type="text/javascript"
+  ></script>
+  <script src="app.js"></script>
 </body>
 </html>

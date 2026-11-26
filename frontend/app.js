@@ -1,44 +1,51 @@
 const API_URL = "/api";
 
-const listEl = document.getElementById("item-list");
-const formEl = document.getElementById("item-form");
-const inputEl = document.getElementById("item-input");
+window.addEventListener("load", async () => {
+  await window.Clerk.load();
 
-function renderItems(items) {
-  listEl.innerHTML = "";
-  for (const item of items) {
-    const li = document.createElement("li");
-    li.textContent = `#${item.id} - ${item.name}`;
-    listEl.appendChild(li);
-  }
-}
+  const authContainer = document.getElementById("auth-container");
+  const appContent = document.getElementById("app-content");
 
-async function loadItems() {
-  const res = await fetch(`${API_URL}/items`);
-  if (!res.ok) {
-    throw new Error("No se pudieron cargar los elementos");
-  }
-  const data = await res.json();
-  renderItems(data);
-}
-
-formEl.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const name = inputEl.value.trim();
-  if (!name) return;
-
-  const res = await fetch(`${API_URL}/items`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name }),
-  });
-
-  if (res.ok) {
-    inputEl.value = "";
-    await loadItems();
+  if (window.Clerk.user) {
+    // Usuario autenticado: mostrar botón de perfil y cargar datos
+    window.Clerk.mountUserButton(authContainer);
+    appContent.style.display = "block";
+    cargarItems();
+  } else {
+    // Usuario no autenticado: mostrar formulario o botón de inicio de sesión
+    window.Clerk.mountSignIn(authContainer);
   }
 });
 
-loadItems().catch((err) => {
-  listEl.innerHTML = `<li>Error: ${err.message}</li>`;
+async function fetchConAuth(endpoint, options = {}) {
+  const token = await window.Clerk.session.getToken();
+  return fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...(options.headers || {}),
+    },
+  });
+}
+
+async function cargarItems() {
+  const res = await fetchConAuth("/items");
+  if (!res.ok) return;
+  const data = await res.json();
+  const list = document.getElementById("items-list");
+  list.innerHTML = data.map((item) => `<li>${item.name}</li>`).join("");
+}
+
+document.getElementById("add-btn").addEventListener("click", async () => {
+  const input = document.getElementById("item-input");
+  const name = input.value.trim();
+  if (!name) return;
+
+  await fetchConAuth("/items", {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  });
+  input.value = "";
+  cargarItems();
 });
